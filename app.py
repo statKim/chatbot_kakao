@@ -3,6 +3,7 @@ import json # json으로 바꾸기 위한 라이브러리
 import random
 import requests
 from flask import Flask, request, jsonify
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
@@ -40,9 +41,35 @@ def message():
         img_bool = True
         url = "https://api.thecatapi.com/v1/images/search?mime_types=jpg"
         req = requests.get(url).json()
-        cat_url = req[0]["url"]
+        img_url = req[0]["url"]
+        return_msg = "고양이"
+    elif msg == "영화":
+        img_bool = True
+        
+        url = "https://movie.naver.com/movie/running/current.nhn"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        
+        title_tag = doc.select("dt.tit > a")
+        star_tag = doc.select("div.star_t1 > a > span.num")
+        reserve_tag = doc.select("div.star_t1.b_star > span.num")
+        img_tag = doc.select("div.thumb > a > img")
+        
+        movie_dic = {}
+        for i in range(0,10):
+            movie_dic[i] ={
+                "title" : title_tag[i].text,
+                "star" : star_tag[i].text,
+                "reserve" : reserve_tag[i].text,
+                "img" : img_tag[i].get("src")
+            } 
+        
+        pick_movie = movie_dic[random.randrange(0,10)]
+        #print(pick_movie)
+        return_msg = "영화제목 : {} \n별점 : {} \n예매율 : {}".format(pick_movie["title"], pick_movie["star"], pick_movie["reserve"])
+        img_url = pick_movie["img"]
     else:
-        return_msg = "현재 메뉴만 지원함"
+        return_msg = "현재 메뉴만 지원합니다."
     
     # 카카오톡에서 명령어 입력시 "text"에 있는 문구가 출력됨!!
     # 현재 이 단계에서는 사용자가 입력한 값을 그대로 답해줌
@@ -50,9 +77,9 @@ def message():
     if img_bool == True:
         json_return = {
             "message" : {
-                "text" : "냥이 사진",
+                "text" : return_msg,
                 "photo" : {
-                    "url" : cat_url,
+                    "url" : img_url,
                     "width" : 720,
                     "height" : 640
                 }
