@@ -17,7 +17,7 @@ def keyboard():
     # keyboard 딕셔너리 생성
     keyboard = {
         "type" : "buttons",
-        "buttons" : ["학식 메뉴", "영재관 메뉴", "로또", "고양이", "영화"]
+        "buttons" : ["학식 메뉴", "영재관 메뉴", "영화", "로또", "고양이"]
     }
     
     # 딕셔너리를 json으로 바꿔서 return
@@ -34,22 +34,7 @@ def message():
     jeju_bool = False
     
     if msg == "학식 메뉴":
-        # menu = ["경경관", "기숙사", "법학관", "카우버거"]
-        # return_msg = random.choice(menu)
         menu_bool = True
-        # json_return = {
-        #     "message" : {
-        #         "text" : "어디 학식이 궁금하세요?"
-        #     },
-        #     "keyboard" : {
-        #         "type" : "buttons",
-        #         "buttons" : ["경경관", "기숙사", "법학관", "교직원식당"]
-        #     }
-        # }
-
-        # msg = request.json["content"]
-        # if msg=="경경관":
-        #     return_msg = "오오오오옹"
     elif msg == "영재관 메뉴":
         jeju_bool = True
     elif msg == "로또":
@@ -82,16 +67,21 @@ def message():
                 "img" : img_tag[i].get("src")
             } 
         
-        pick_movie = movie_dic[random.randrange(0,7)]
+        pick_rank = random.randrange(0,7)
+        pick_movie = movie_dic[pick_rank]
         #print(pick_movie)
-        return_msg = "영화제목 : {} \n별점 : {} \n예매율 : {}".format(pick_movie["title"], pick_movie["star"], pick_movie["reserve"])
+        return_msg = "영화제목 : {} \n평점 : {} \n예매율 : {}\n예매순위 : {}".format(pick_movie["title"], pick_movie["star"], pick_movie["reserve"], pick_rank + 1)
         img_url = pick_movie["img"]
+    
+    # "학식 메뉴" 선택시    
     elif msg == "경경관":
         return_msg = "경경식"
     elif msg == "기숙사":
         return_msg = "기식"
     elif msg == "법학관":
         return_msg = "법식"
+        
+    # "영재관 메뉴" 선택시
     elif msg == "월":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
@@ -166,7 +156,7 @@ def message():
             },
             "keyboard" : {
                 "type" : "buttons",
-                "buttons" : ["학식 메뉴", "영재관 메뉴", "로또", "고양이", "영화"]
+                "buttons" : ["학식 메뉴", "영재관 메뉴", "영화", "로또", "고양이", "영화"]
             }
         }
     elif menu_bool == True:
@@ -182,11 +172,11 @@ def message():
     elif jeju_bool == True:
         json_return = {
             "message" : {
-                "text" : "요일을 선택하세요"
+                "text" : "무슨 요일 메뉴가 궁금하세요?"
             },
             "keyboard" : {
                 "type" : "buttons",
-                "buttons" : ["월", "화", "수", "목", "금", "토", "일"]
+                "buttons" : ["일", "월", "화", "수", "목", "금", "토"]
             }
         }  
     else:
@@ -196,7 +186,7 @@ def message():
             },
             "keyboard" : {
                 "type" : "buttons",
-                "buttons" : ["학식 메뉴", "영재관 메뉴", "로또", "고양이", "영화"]
+                "buttons" : ["학식 메뉴", "영재관 메뉴", "영화", "로또", "고양이", "영화"]
             }
         }        
         
