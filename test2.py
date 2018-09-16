@@ -2,15 +2,19 @@ import requests
 from bs4 import BeautifulSoup
 import random
 
-url = "https://sports.news.naver.com/wbaseball/schedule/index.nhn"
+url = "http://www.jeju.go.kr/genius/notice/menu.htm"
 req = requests.get(url).text
 doc = BeautifulSoup(req, "html.parser")
 
-print(doc)
+#print(doc)
 
 # print(doc.select("span"))
-print(doc.select("tr.today > td > div.inner > span.team_left.winner > span.name"))
-print(doc.find("span"))
+#print(doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu"))
+#print(doc.find("span"))
+x = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")[13].text
+print(x)
+print(type(x))
+
 
 # title_tag = doc.select("dt.tit > a")
 # star_tag = doc.select("div.star_t1 > a > span.num")

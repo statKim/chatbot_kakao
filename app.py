@@ -17,7 +17,7 @@ def keyboard():
     # keyboard 딕셔너리 생성
     keyboard = {
         "type" : "buttons",
-        "buttons" : ["메뉴", "로또", "고양이", "영화"]
+        "buttons" : ["학식 메뉴", "영재관 메뉴", "로또", "고양이", "영화"]
     }
     
     # 딕셔너리를 json으로 바꿔서 return
@@ -30,10 +30,28 @@ def message():
     # content라는 key의 value를 msg에 저장
     msg = request.json["content"] 
     img_bool = False
+    menu_bool = False
+    jeju_bool = False
     
-    if msg == "메뉴":
-        menu = ["20층", "멀캠식당", "꼭대기", "급식"]
-        return_msg = random.choice(menu)
+    if msg == "학식 메뉴":
+        # menu = ["경경관", "기숙사", "법학관", "카우버거"]
+        # return_msg = random.choice(menu)
+        menu_bool = True
+        # json_return = {
+        #     "message" : {
+        #         "text" : "어디 학식이 궁금하세요?"
+        #     },
+        #     "keyboard" : {
+        #         "type" : "buttons",
+        #         "buttons" : ["경경관", "기숙사", "법학관", "교직원식당"]
+        #     }
+        # }
+
+        # msg = request.json["content"]
+        # if msg=="경경관":
+        #     return_msg = "오오오오옹"
+    elif msg == "영재관 메뉴":
+        jeju_bool = True
     elif msg == "로또":
         pick = random.sample(range(1,46),6)
         return_msg = "로또번호 : " + str(sorted(pick))
@@ -56,7 +74,7 @@ def message():
         img_tag = doc.select("div.thumb > a > img")
         
         movie_dic = {}
-        for i in range(0,10):
+        for i in range(0,7):
             movie_dic[i] ={
                 "title" : title_tag[i].text,
                 "star" : star_tag[i].text,
@@ -64,10 +82,72 @@ def message():
                 "img" : img_tag[i].get("src")
             } 
         
-        pick_movie = movie_dic[random.randrange(0,10)]
+        pick_movie = movie_dic[random.randrange(0,7)]
         #print(pick_movie)
         return_msg = "영화제목 : {} \n별점 : {} \n예매율 : {}".format(pick_movie["title"], pick_movie["star"], pick_movie["reserve"])
         img_url = pick_movie["img"]
+    elif msg == "경경관":
+        return_msg = "경경식"
+    elif msg == "기숙사":
+        return_msg = "기식"
+    elif msg == "법학관":
+        return_msg = "법식"
+    elif msg == "월":
+        url = "http://www.jeju.go.kr/genius/notice/menu.htm"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
+        breakfast = menu_list[1].text
+        dinner = menu_list[8].text
+        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+    elif msg == "화":
+        url = "http://www.jeju.go.kr/genius/notice/menu.htm"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
+        breakfast = menu_list[2].text
+        dinner = menu_list[9].text
+        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+    elif msg == "수":
+        url = "http://www.jeju.go.kr/genius/notice/menu.htm"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
+        breakfast = menu_list[3].text
+        dinner = menu_list[10].text
+        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+    elif msg == "목":
+        url = "http://www.jeju.go.kr/genius/notice/menu.htm"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
+        breakfast = menu_list[4].text
+        dinner = menu_list[11].text
+        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+    elif msg == "금":
+        url = "http://www.jeju.go.kr/genius/notice/menu.htm"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
+        breakfast = menu_list[5].text
+        dinner = menu_list[12].text
+        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+    elif msg == "토":
+        url = "http://www.jeju.go.kr/genius/notice/menu.htm"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
+        breakfast = menu_list[6].text
+        dinner = menu_list[13].text
+        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+    elif msg == "일":
+        url = "http://www.jeju.go.kr/genius/notice/menu.htm"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
+        breakfast = menu_list[0].text
+        dinner = menu_list[7].text
+        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
     else:
         return_msg = "현재 메뉴만 지원합니다."
     
@@ -86,9 +166,29 @@ def message():
             },
             "keyboard" : {
                 "type" : "buttons",
-                "buttons" : ["메뉴", "로또", "고양이", "영화"]
+                "buttons" : ["학식 메뉴", "영재관 메뉴", "로또", "고양이", "영화"]
             }
         }
+    elif menu_bool == True:
+        json_return = {
+            "message" : {
+                "text" : "어디 학식이 궁금하세요?"
+            },
+            "keyboard" : {
+                "type" : "buttons",
+                "buttons" : ["경경관", "법학관", "기숙사"]
+            }
+        }          
+    elif jeju_bool == True:
+        json_return = {
+            "message" : {
+                "text" : "요일을 선택하세요"
+            },
+            "keyboard" : {
+                "type" : "buttons",
+                "buttons" : ["월", "화", "수", "목", "금", "토", "일"]
+            }
+        }  
     else:
         json_return = {
             "message" : {
@@ -96,9 +196,9 @@ def message():
             },
             "keyboard" : {
                 "type" : "buttons",
-                "buttons" : ["메뉴", "로또", "고양이", "영화"]
+                "buttons" : ["학식 메뉴", "영재관 메뉴", "로또", "고양이", "영화"]
             }
-        }       
+        }        
         
     # json.dumps()와 같은 기능 - json으로 바꿔주는 기능
     return jsonify(json_return)
