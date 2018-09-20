@@ -4,6 +4,7 @@ import random
 import requests
 from flask import Flask, request, jsonify
 from bs4 import BeautifulSoup
+import time # 영재관 메뉴에서 오늘의 요일 찾을 때 사용
 
 app = Flask(__name__)
 
@@ -17,7 +18,7 @@ def keyboard():
     # keyboard 딕셔너리 생성
     keyboard = {
         "type" : "buttons",
-        "buttons" : ["학식 메뉴", "영재관 메뉴", "영화", "로또", "고양이"]
+        "buttons" : ["야구", "영재관 메뉴", "영화", "고양이", "학식 메뉴"]
     }
     
     # 딕셔너리를 json으로 바꿔서 return
@@ -32,14 +33,17 @@ def message():
     img_bool = False
     menu_bool = False
     jeju_bool = False
+    kbo_bool = False
     
-    if msg == "학식 메뉴":
+    if msg == "야구":
+        kbo_bool = True
+    elif msg == "학식 메뉴":
         menu_bool = True
     elif msg == "영재관 메뉴":
         jeju_bool = True
-    elif msg == "로또":
-        pick = random.sample(range(1,46),6)
-        return_msg = "로또번호 : " + str(sorted(pick))
+    # elif msg == "로또":
+    #     pick = random.sample(range(1,46),6)
+    #     return_msg = "로또번호 : " + str(sorted(pick))
     elif msg == "고양이":
         img_bool = True
         url = "https://api.thecatapi.com/v1/images/search?mime_types=jpg"
@@ -82,6 +86,39 @@ def message():
         return_msg = "법식"
         
     # "영재관 메뉴" 선택시
+    elif msg == "오늘의 메뉴":
+        url = "http://www.jeju.go.kr/genius/notice/menu.htm"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
+
+        week = ["월", "화", "수", "목", "금", "토", "일"]
+        today = week[time.localtime().tm_wday]
+        if today == "월":
+            ind_breakfast = 1
+            ind_dinner = 8
+        elif today == "화":
+            ind_breakfast = 2
+            ind_dinner = 9
+        elif today == "수":
+            ind_breakfast = 3
+            ind_dinner = 10            
+        elif today == "목":
+            ind_breakfast = 4
+            ind_dinner = 11
+        elif today == "금":
+            ind_breakfast = 5
+            ind_dinner = 12            
+        elif today == "토":
+            ind_breakfast = 6
+            ind_dinner = 13            
+        elif today == "일":
+            ind_breakfast = 0
+            ind_dinner = 7            
+            
+        breakfast = menu_list[ind_breakfast].text
+        dinner = menu_list[ind_dinner].text
+        return_msg = "■ 오늘의 메뉴\n★아침\n{}\n★저녁\n{}".format(breakfast, dinner)        
     elif msg == "월":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
@@ -138,6 +175,55 @@ def message():
         breakfast = menu_list[0].text
         dinner = menu_list[7].text
         return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+    
+    # "야구" 선택시
+    elif msg == "오늘의 매치업":
+        url = "https://sports.news.naver.com/kbaseball/schedule/index.nhn"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        away = doc.select("#todaySchedule > li > div.vs_lft > p > strong")
+        home = doc.select("#todaySchedule > li > div.vs_rgt > p > strong")
+        away_pit = doc.select("#todaySchedule > li > div.vs_lft > p > span > a")
+        home_pit = doc.select("#todaySchedule > li > div.vs_rgt > p > span > a")
+        test = "★ 오늘의 경기\n\n"
+        stadium = {"넥센":"고척", "SK":"문학", "두산":"잠실", "LG":"잠실", "KIA":"광주",
+                    "롯데":"사직", "삼성":"대구", "NC":"마산", "한화":"대전", "KT":"수원"}
+        for i in range(5):
+            if home[i].text in stadium:
+                test = test + stadium[home[i].text] + "\n" + away[i].text + "\tVS\t" + home[i].text + "\n" + away_pit[i].text + "\tVS\t" + home_pit[i].text + "\n\n"
+        return_msg = test[:-2]
+    elif msg == "오늘의 경기 결과":
+        url = "https://sports.news.naver.com/kbaseball/schedule/index.nhn"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        away = doc.select("#todaySchedule > li > div.vs_lft > p > strong")
+        home = doc.select("#todaySchedule > li > div.vs_rgt > p > strong")
+        away_score = doc.select("#todaySchedule > li > div.vs_lft > strong")
+        home_score = doc.select("#todaySchedule > li > div.vs_rgt > strong")
+        test = "★ 오늘의 경기결과\n\n"
+        stadium = {"넥센":"고척", "SK":"문학", "두산":"잠실", "LG":"잠실", "KIA":"광주",
+                    "롯데":"사직", "삼성":"대구", "NC":"마산", "한화":"대전", "KT":"수원"}
+        game_status = doc.select("em.state")
+        for i in range(5):
+            if game_status[i].text.strip() == "종료":
+                if home[i].text in stadium:
+                    test = test + stadium[home[i].text] + "\n" + away[i].text + "\t" + away_score[i].text + "\t:\t" + home_score[i].text + "\t" + home[i].text + "\n\n"
+                    return_msg = test[:-2]
+            else:
+                return_msg = "아직 종료된 경기가 없습니다."
+    elif msg == "팀순위":
+        url = "http://www.statiz.co.kr/league.php?opt=2018"
+        req = requests.get(url).text
+        doc = BeautifulSoup(req, "html.parser")
+        test = "★ 2018 KBO리그 팀순위\n\n순위\t|\t팀\t|\t경기\t|\t승\t|\t패\t|\t무\t|\t게임차\t|\t승률\n"
+        for team in range(1,11,1):
+            x = doc.select("table.table.table-striped > tr")[team]
+            for i in range(0,8,1):
+                test = test + x.select("td")[i].text + "\t|\t"
+                if i == 7:
+                    test = test[:-3] + "\n"
+        return_msg = test
+        
     else:
         return_msg = "현재 메뉴만 지원합니다."
     
@@ -156,7 +242,7 @@ def message():
             },
             "keyboard" : {
                 "type" : "buttons",
-                "buttons" : ["학식 메뉴", "영재관 메뉴", "영화", "로또", "고양이", "영화"]
+                "buttons" : ["야구", "영재관 메뉴", "영화", "고양이", "학식 메뉴"]
             }
         }
     elif menu_bool == True:
@@ -176,9 +262,19 @@ def message():
             },
             "keyboard" : {
                 "type" : "buttons",
-                "buttons" : ["일", "월", "화", "수", "목", "금", "토"]
+                "buttons" : ["오늘의 메뉴", "일", "월", "화", "수", "목", "금", "토"]
             }
-        }  
+        }
+    elif kbo_bool == True:
+        json_return = {
+            "message" : {
+                "text" : "어떤 것이 궁금하세요?"
+            },
+            "keyboard" : {
+                "type" : "buttons",
+                "buttons" : ["오늘의 매치업", "오늘의 경기 결과", "팀순위"]
+            }
+        }        
     else:
         json_return = {
             "message" : {
@@ -186,7 +282,7 @@ def message():
             },
             "keyboard" : {
                 "type" : "buttons",
-                "buttons" : ["학식 메뉴", "영재관 메뉴", "영화", "로또", "고양이", "영화"]
+                "buttons" : ["야구", "영재관 메뉴", "영화", "고양이", "학식 메뉴"]
             }
         }        
         
