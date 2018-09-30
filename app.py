@@ -92,124 +92,156 @@ def message():
         req = requests.get(url).text
         doc = BeautifulSoup(req, "html.parser")
         menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
-
-        week = ["월", "화", "수", "목", "금", "토", "일"]
-        today = week[time.localtime().tm_wday]
-        if today == "월":
-            ind_breakfast = 1
-            ind_dinner = 8
-        elif today == "화":
-            ind_breakfast = 2
-            ind_dinner = 9
-        elif today == "수":
-            ind_breakfast = 3
-            ind_dinner = 10            
-        elif today == "목":
-            ind_breakfast = 4
-            ind_dinner = 11
-        elif today == "금":
-            ind_breakfast = 5
-            ind_dinner = 12            
-        elif today == "토":
-            ind_breakfast = 6
-            ind_dinner = 13            
-        elif today == "일":
-            ind_breakfast = 0
-            ind_dinner = 7            
-            
-        breakfast = menu_list[ind_breakfast].text
-        dinner = menu_list[ind_dinner].text
-        return_msg = "■ 오늘의 메뉴\n\n★아침\n{}\n\n★저녁\n{}".format(breakfast, dinner)        
+        
+        if len(menu_list) != 0:
+            week = ["월", "화", "수", "목", "금", "토", "일"]
+            today = week[time.localtime().tm_wday]
+            if today == "월":
+                ind_breakfast = 1
+                ind_dinner = 8
+            elif today == "화":
+                ind_breakfast = 2
+                ind_dinner = 9
+            elif today == "수":
+                ind_breakfast = 3
+                ind_dinner = 10            
+            elif today == "목":
+                ind_breakfast = 4
+                ind_dinner = 11
+            elif today == "금":
+                ind_breakfast = 5
+                ind_dinner = 12            
+            elif today == "토":
+                ind_breakfast = 6
+                ind_dinner = 13            
+            elif today == "일":
+                ind_breakfast = 0
+                ind_dinner = 7            
+                
+            breakfast = menu_list[ind_breakfast].text
+            dinner = menu_list[ind_dinner].text
+            return_msg = "■ 오늘의 메뉴\n\n★아침\n{}\n\n★저녁\n{}".format(breakfast, dinner)        
+        else:
+            return_msg = "죄송합니다. 아직 메뉴가 업데이트되지 않았습니다."
     elif msg == "내일의 메뉴":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
         doc = BeautifulSoup(req, "html.parser")
         menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
 
-        week = ["월", "화", "수", "목", "금", "토", "일"]
-        tomorrow = week[time.localtime().tm_wday + 1]
-        if tomorrow == "월":
-            ind_breakfast = 1
-            ind_dinner = 8
-        elif tomorrow == "화":
-            ind_breakfast = 2
-            ind_dinner = 9
-        elif tomorrow == "수":
-            ind_breakfast = 3
-            ind_dinner = 10            
-        elif tomorrow == "목":
-            ind_breakfast = 4
-            ind_dinner = 11
-        elif tomorrow == "금":
-            ind_breakfast = 5
-            ind_dinner = 12            
-        elif tomorrow == "토":
-            ind_breakfast = 6
-            ind_dinner = 13            
-        elif tomorrow == "일":
-            ind_breakfast = 0
-            ind_dinner = 7            
-            
-        breakfast = menu_list[ind_breakfast].text
-        dinner = menu_list[ind_dinner].text
-        return_msg = "■ 내일의 메뉴\n\n★아침\n{}\n\n★저녁\n{}".format(breakfast, dinner)  
+        if len(menu_list) != 0:
+            week = ["월", "화", "수", "목", "금", "토", "일"]
+            if week[time.localtime().tm_wday] != "토":
+                if week[time.localtime().tm_wday] == "일":
+                    tomorrow = week[0]
+                else:
+                    tomorrow = week[time.localtime().tm_wday + 1]
+                if tomorrow == "월":
+                    ind_breakfast = 1
+                    ind_dinner = 8
+                elif tomorrow == "화":
+                    ind_breakfast = 2
+                    ind_dinner = 9
+                elif tomorrow == "수":
+                    ind_breakfast = 3
+                    ind_dinner = 10            
+                elif tomorrow == "목":
+                    ind_breakfast = 4
+                    ind_dinner = 11
+                elif tomorrow == "금":
+                    ind_breakfast = 5
+                    ind_dinner = 12            
+                elif tomorrow == "토":
+                    ind_breakfast = 6
+                    ind_dinner = 13            
+                elif tomorrow == "일":
+                    ind_breakfast = 0
+                    ind_dinner = 7            
+                breakfast = menu_list[ind_breakfast].text
+                dinner = menu_list[ind_dinner].text
+                return_msg = "■ 내일의 메뉴\n\n★아침\n{}\n\n★저녁\n{}".format(breakfast, dinner)  
+            else:
+                return_msg = "죄송합니다. 일요일 메뉴를 클릭해서 이용해주시기 바랍니다."
+        else:
+            return_msg = "죄송합니다. 아직 메뉴가 업데이트되지 않았습니다."        
     elif msg == "월":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
         doc = BeautifulSoup(req, "html.parser")
         menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
-        breakfast = menu_list[1].text
-        dinner = menu_list[8].text
-        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        if len(menu_list) != 0:
+            breakfast = menu_list[1].text
+            dinner = menu_list[8].text
+            return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        else:
+            return_msg = "죄송합니다. 아직 메뉴가 업데이트되지 않았습니다."         
     elif msg == "화":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
         doc = BeautifulSoup(req, "html.parser")
         menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
-        breakfast = menu_list[2].text
-        dinner = menu_list[9].text
-        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        if len(menu_list) != 0:
+            breakfast = menu_list[2].text
+            dinner = menu_list[9].text
+            return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        else:
+            return_msg = "죄송합니다. 아직 메뉴가 업데이트되지 않았습니다."  
     elif msg == "수":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
         doc = BeautifulSoup(req, "html.parser")
         menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
-        breakfast = menu_list[3].text
-        dinner = menu_list[10].text
-        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        if len(menu_list) != 0:
+            breakfast = menu_list[3].text
+            dinner = menu_list[10].text
+            return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        else:
+            return_msg = "죄송합니다. 아직 메뉴가 업데이트되지 않았습니다."              
     elif msg == "목":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
         doc = BeautifulSoup(req, "html.parser")
         menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
-        breakfast = menu_list[4].text
-        dinner = menu_list[11].text
-        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        if len(menu_list) != 0:
+            breakfast = menu_list[4].text
+            dinner = menu_list[11].text
+            return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        else:
+            return_msg = "죄송합니다. 아직 메뉴가 업데이트되지 않았습니다."              
     elif msg == "금":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
         doc = BeautifulSoup(req, "html.parser")
         menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
-        breakfast = menu_list[5].text
-        dinner = menu_list[12].text
-        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        if len(menu_list) != 0:
+            breakfast = menu_list[5].text
+            dinner = menu_list[12].text
+            return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        else:
+            return_msg = "죄송합니다. 아직 메뉴가 업데이트되지 않았습니다."              
     elif msg == "토":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
         doc = BeautifulSoup(req, "html.parser")
         menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
-        breakfast = menu_list[6].text
-        dinner = menu_list[13].text
-        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        if len(menu_list) != 0:
+            breakfast = menu_list[6].text
+            dinner = menu_list[13].text
+            return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        else:
+            return_msg = "죄송합니다. 아직 메뉴가 업데이트되지 않았습니다."              
     elif msg == "일":
         url = "http://www.jeju.go.kr/genius/notice/menu.htm"
         req = requests.get(url).text
         doc = BeautifulSoup(req, "html.parser")
         menu_list = doc.select("#mainContents > div.module-wrapper > table.table.table-list.table-bordered.table-week > tbody > tr > td > p.menu")
-        breakfast = menu_list[0].text
-        dinner = menu_list[7].text
-        return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
-    
+        if len(menu_list) != 0:
+            breakfast = menu_list[0].text
+            dinner = menu_list[7].text
+            return_msg = "★아침\n{}\n★저녁\n{}".format(breakfast, dinner)
+        else:
+            return_msg = "죄송합니다. 아직 메뉴가 업데이트되지 않았습니다."  
+            
     # "야구" 선택시
     elif msg == "오늘의 매치업":
         url = "https://sports.news.naver.com/kbaseball/schedule/index.nhn"
@@ -224,8 +256,9 @@ def message():
                     "롯데":"사직", "삼성":"대구", "NC":"마산", "한화":"대전", "KT":"수원"}
         if len(away) != 0:
             for i in range(len(away)):
+                game_status = doc.select("em.state")
                 if home[i].text in stadium:
-                    test = test + stadium[home[i].text] + "\n" + away[i].text + "\tVS\t" + home[i].text + "(♠)\n" + away_pit[i].text + "\tVS\t" + home_pit[i].text + "\n\n"
+                    test = test + stadium[home[i].text] + " (" + game_status[i].text.strip() + ")\n" + away[i].text + "\tVS\t" + home[i].text + "(♠)\n" + away_pit[i].text + "\tVS\t" + home_pit[i].text + "\n\n"
             return_msg = test[:-2]
         else:
             return_msg = "오늘은 경기가 없습니다."
